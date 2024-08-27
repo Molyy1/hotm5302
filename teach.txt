@@ -1,0 +1,3 @@
+{
+  "neko": "Neko () is the Japanese word for \"cat\". In Japan, there is a large and dedicated \"Nekophilia\" culture, where cat lovers and enthusiasts gather to celebrate all things feline. In fact, Japan has a high number of cat cafes, where customers can pay to play and snack with adorable cats in a relaxing environment.\n\nThe word \"nekosama\" () is also often used to refer to a cat, which is a term of affection and endearment, similar to \"kitty\" in English.\n\nAre you a cat lover or interested in learning more about Japanese culture?"
+}
