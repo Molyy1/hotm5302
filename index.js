@@ -130,7 +130,7 @@ app.get('/ai', async (req, res) => {
         if (userPrompt.includes('waifu')) {
             const query = userPrompt.replace('waifu', '').trim();
             try {
-                const apiUrl = `https://waifu-18.onrender.com/waifu?search=${encodeURIComponent(query)}`;
+                const apiUrl = `https://waifu-18-2bq3.onrender.com/waifu?search=${encodeURIComponent(query)}`;
                 const waifuApiResponse = await axios.get(apiUrl);
 
                 if (waifuApiResponse.data && waifuApiResponse.data.images.length > 0) {
