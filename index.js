@@ -216,7 +216,7 @@ app.get('/ai', async (req, res) => {
 
             // Query an external AI API if no response is found
             try {
-                const apiResponse = await axios.get(`https://llama3-cv-shassan.onrender.com/llama3?prompt=${encodeURIComponent(userPrompt)}`);
+                const apiResponse = await axios.get(`https://developer-gpn-llm3.vercel.app/llama3?prompt=${encodeURIComponent(userPrompt)}`);
                 const externalResponse = apiResponse.data.response;
 
                 if (apiResponse.status === 200 && externalResponse) {
