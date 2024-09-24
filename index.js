@@ -110,6 +110,8 @@ app.get('/ai', async (req, res) => {
             }
         }
 
+        
+
         // Check if the prompt is music-related
         if (userPrompt.includes('play music') || userPrompt.includes('sing a song') || userPrompt.includes('play a song')) {
             const query = userPrompt.replace(/(play music|sing a song|play a song)/, '').trim();
@@ -117,9 +119,10 @@ app.get('/ai', async (req, res) => {
                 const musicApiUrl = `https://hassan-music-api.vercel.app/music?query=${encodeURIComponent(query)}`;
                 const musicApiResponse = await axios.get(musicApiUrl);
                 
-                if (musicApiResponse.data && musicApiResponse.data.url) {
-                    const musicUrl = musicApiResponse.data.url;
-                    const response = `Here is the song you requested: ${musicUrl}`;
+                if (musicApiResponse.data && musicApiResponse.data.downloadUrl && musicApiResponse.data.title) {
+                    const musicTitle = musicApiResponse.data.title;
+                    const musicUrl = musicApiResponse.data.downloadUrl;
+                    const response = `Here is the song you requested:\n**${musicTitle}**\n[Download or Play the song](${musicUrl})`;
                     chatHistory.push({ response });
                     return res.json({ response });
                 } else {
@@ -132,6 +135,8 @@ app.get('/ai', async (req, res) => {
                 return res.json({ response });
             }
         }
+
+
 
         // (The rest of your code remains unchanged)
 
@@ -270,4 +275,4 @@ app.get('/inspectMemory', (req, res) => {
 // Start the server
 app.listen(3000, () => {
     console.log('AI server is running on port 3000');
-});
+})
