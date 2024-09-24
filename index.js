@@ -184,7 +184,7 @@ app.get('/ai', async (req, res) => {
         if (isImageRelated(userPrompt)) {
             const query = userPrompt;
             try {
-                const apiUrl = `https://pinterest-devh.onrender.com/pinterest?query=${encodeURIComponent(query)}`;
+                const apiUrl = `https://hassan-d-pintrest-project-api.vercel.app/pinterest?query=${encodeURIComponent(query)}`;
                 const resApi = await axios.get(apiUrl);
                 const imageUrls = resApi.data.data.slice(0, 10); // Limit to 10 images
 
@@ -235,7 +235,7 @@ app.get('/ai', async (req, res) => {
                 const response = "404 Error ❗";
                 chatHistory.push({ response });
                 res.json({ response });
-            }
+            } 
         }
     } else {
         res.json({ response: "Please provide a prompt." });
