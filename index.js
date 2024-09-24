@@ -85,152 +85,115 @@ app.get('/ai', async (req, res) => {
     const userPrompt = req.query.prompt?.trim().toLowerCase();
     console.log('Received prompt:', userPrompt);
 
-    if (userPrompt) {
-        chatHistory.push({ prompt: userPrompt });
+    if (!userPrompt) {
+        return res.json({ response: "Please provide a prompt." });
+    }
 
-        // Check if the prompt is related to music
+    chatHistory.push({ prompt: userPrompt });
+
+    try {
+        // Music handling
         if (/play|sing|song|music|listen/.test(userPrompt)) {
             const query = userPrompt.replace(/play|sing|song|music|listen/, '').trim();
-            try {
-                const musicApiResponse = await axios.get(`https://hassan-music-api.vercel.app/music?query=${encodeURIComponent(query)}`);
-                const musicData = musicApiResponse.data;
+            const musicApiResponse = await axios.get(`https://hassan-music-api.vercel.app/music?query=${encodeURIComponent(query)}`);
+            const musicData = musicApiResponse.data;
 
-                if (musicData && musicData.length > 0) {
-                    const song = musicData[0]; // Using the first song found
-                    const response = `Playing "${song.title}":\nDownload: ${song.downloadUrl}`;
-                    chatHistory.push({ response });
-                    return res.json({ response });
-                } else {
-                    throw new Error('No songs found');
-                }
-            } catch (error) {
-                console.error('Error fetching music:', error.message || error);
-                const response = `Error fetching music for "${query}": ${error.message}`;
+            if (musicData && musicData.length > 0) {
+                const song = musicData[0];
+                const response = `Playing "${song.title}":\nDownload: ${song.downloadUrl}`;
                 chatHistory.push({ response });
                 return res.json({ response });
+            } else {
+                throw new Error('No songs found');
             }
         }
 
-        // Check if the prompt mentions "necko"
+        // Necko API handling
         if (userPrompt.includes('necko')) {
-            try {
-                const neckoApiResponse = await axios.get('https://necko.onrender.com/neko');
-                const imageUrl = neckoApiResponse.data.imageUrl;
-                
-                if (imageUrl) {
-                    const response = `Here is what I found from the Necko API:\nImage: ${imageUrl}`;
-                    chatHistory.push({ response });
-                    return res.json({ response });
-                } else {
-                    throw new Error("Invalid response from Necko API.");
-                }
-            } catch (error) {
-                console.error('Error fetching from Necko API:', error.message || error);
-                const response = "Error fetching data from Necko API.";
+            const neckoApiResponse = await axios.get('https://necko.onrender.com/neko');
+            const imageUrl = neckoApiResponse.data.imageUrl;
+
+            if (imageUrl) {
+                const response = `Here is what I found from the Necko API:\nImage: ${imageUrl}`;
                 chatHistory.push({ response });
                 return res.json({ response });
+            } else {
+                throw new Error("Invalid response from Necko API.");
             }
         }
 
-        // Check if the prompt is asking about the creator
+        // Handle creator-related questions
         if (userPrompt.includes('who created you') || userPrompt.includes('your creator')) {
             const response = creatorResponses[Math.floor(Math.random() * creatorResponses.length)];
             chatHistory.push({ response });
             return res.json({ response });
         }
 
-        // Check if the prompt is asking about the model
-        if (userPrompt.includes('what model are you') || userPrompt.includes('which model') || userPrompt.includes('your model') || userPrompt.includes('what kind of ai') || userPrompt.includes('kind of ai')) {
+        // Handle model-related questions
+        if (/what model are you|which model|your model|what kind of ai|kind of ai/.test(userPrompt)) {
             const response = modelResponses[Math.floor(Math.random() * modelResponses.length)];
             chatHistory.push({ response });
             return res.json({ response });
         }
 
-        // Check if the prompt is related to waifu
+        // Waifu API handling
         if (userPrompt.includes('waifu')) {
             const query = userPrompt.replace('waifu', '').trim();
-            try {
-                const apiUrl = `https://waifu-18-2bq3.onrender.com/waifu?search=${encodeURIComponent(query)}`;
-                const waifuApiResponse = await axios.get(apiUrl);
+            const apiUrl = `https://waifu-18-2bq3.onrender.com/waifu?search=${encodeURIComponent(query)}`;
+            const waifuApiResponse = await axios.get(apiUrl);
 
-                if (waifuApiResponse.data && waifuApiResponse.data.images.length > 0) {
-                    const waifuImage = waifuApiResponse.data.images[0]; // Use the first image
-                    const imageUrl = waifuImage.url;
-                    const tags = waifuImage.tags.map(tag => `**${tag.name}**: ${tag.description}`).join('\n');
-
-                    const response = `Here is your waifu for "${query}":\n\n${tags}\n\nImage: ${imageUrl}`;
-                    chatHistory.push({ response });
-                    return res.json({ response });
-                } else {
-                    throw new Error('No waifu images found');
-                }
-            } catch (error) {
-                console.error('Error fetching waifu:', error.message || error);
-                const response = `Error fetching waifu for "${query}": ${error.message}`;
+            if (waifuApiResponse.data && waifuApiResponse.data.images.length > 0) {
+                const waifuImage = waifuApiResponse.data.images[0];
+                const imageUrl = waifuImage.url;
+                const tags = waifuImage.tags.map(tag => `**${tag.name}**: ${tag.description}`).join('\n');
+                const response = `Here is your waifu for "${query}":\n\n${tags}\n\nImage: ${imageUrl}`;
                 chatHistory.push({ response });
                 return res.json({ response });
+            } else {
+                throw new Error('No waifu images found');
             }
         }
 
-        // Check if the prompt is related to images (general)
+        // General image handling
         if (isImageRelated(userPrompt)) {
-            const query = userPrompt;
-            try {
-                const apiUrl = `https://pinterest-devh.onrender.com/pinterest?query=${encodeURIComponent(query)}`;
-                const resApi = await axios.get(apiUrl);
-                const imageUrls = resApi.data.data.slice(0, 10); // Limit to 10 images
+            const apiUrl = `https://pinterest-devh.onrender.com/pinterest?query=${encodeURIComponent(userPrompt)}`;
+            const resApi = await axios.get(apiUrl);
+            const imageUrls = resApi.data.data.slice(0, 10);
 
-                if (imageUrls.length > 0) {
-                    const response = `Here are some images of ${query}: \n${imageUrls.join('\n')}`;
-                    chatHistory.push({ response });
-                    return res.json({ response });
-                } else {
-                    throw new Error('No images found');
-                }
-            } catch (error) {
-                console.error('Error fetching images:', error.message || error);
-                const response = `Error fetching images for ${query}: ${error.message}`;
+            if (imageUrls.length > 0) {
+                const response = `Here are some images of ${userPrompt}: \n${imageUrls.join('\n')}`;
                 chatHistory.push({ response });
                 return res.json({ response });
+            } else {
+                throw new Error('No images found');
             }
         }
 
-        // Fuzzy matching and memory search
+        // Handle fuzzy matching and memory search
         const similarPrompt = findSimilarPrompt(userPrompt);
-
         if (similarPrompt) {
             const response = aiMemory[similarPrompt];
-            console.log('Found response:', response);
             chatHistory.push({ response });
-            res.json({ response });
-        } else {
-            console.log('Response not found in memory for prompt:', userPrompt);
-
-            // Query an external AI API if no response is found
-            try {
-                const apiResponse = await axios.get(`https://llama3-cv-shassan.onrender.com/llama3?prompt=${encodeURIComponent(userPrompt)}`);
-                const externalResponse = apiResponse.data.response;
-
-                if (apiResponse.status === 200 && externalResponse) {
-                    aiMemory[userPrompt] = externalResponse;
-                    console.log('Learned from external API:', userPrompt, '->', externalResponse);
-                    chatHistory.push({ response: externalResponse });
-                    res.json({ response: externalResponse });
-
-                    // Save the updated memory after learning from the external API
-                    saveMemory();
-                } else {
-                    throw new Error("Invalid response from external API");
-                }
-            } catch (error) {
-                console.error('Error querying external API:', error.response?.data || error.message || error);
-                const response = "404 Error ❗";
-                chatHistory.push({ response });
-                res.json({ response });
-            }
+            return res.json({ response });
         }
-    } else {
-        res.json({ response: "Please provide a prompt." });
+
+        // External AI API fallback
+        const apiResponse = await axios.get(`https://llama3-cv-shassan.onrender.com/llama3?prompt=${encodeURIComponent(userPrompt)}`);
+        const externalResponse = apiResponse.data.response;
+
+        if (apiResponse.status === 200 && externalResponse) {
+            aiMemory[userPrompt] = externalResponse;
+            chatHistory.push({ response: externalResponse });
+            saveMemory(); // Save the updated memory
+            return res.json({ response: externalResponse });
+        } else {
+            throw new Error("Invalid response from external API");
+        }
+    } catch (error) {
+        console.error('Error handling request:', error.message || error);
+        const response = `404 Error ❗`;
+        chatHistory.push({ response });
+        return res.json({ response });
     }
 });
 
