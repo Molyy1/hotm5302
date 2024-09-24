@@ -113,8 +113,8 @@ app.get('/ai', async (req, res) => {
         
 
         // Check if the prompt is music-related
-        if (userPrompt.includes('play music') || userPrompt.includes('sing a song') || userPrompt.includes('play a song')) {
-            const query = userPrompt.replace(/(play music|sing a song|play a song)/, '').trim();
+        if (userPrompt.includes('play music') || userPrompt.includes('sing a song') || userPrompt.includes('play') || userPrompt.includes('music') || userPrompt.includes('sing') || userPrompt.includes('play a song')) {
+            const query = userPrompt.replace(/(play music|sing a song|play a song|play|music|sing)/, '').trim();
             try {
                 const musicApiUrl = `https://hassan-music-api.vercel.app/music?query=${encodeURIComponent(query)}`;
                 const musicApiResponse = await axios.get(musicApiUrl);
