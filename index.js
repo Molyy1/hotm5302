@@ -81,13 +81,35 @@ const modelResponses = [
     "Running on the YAu-5 architecture, I'm part of Hassan's fourth-gen AI. What would you like to know?"
 ];
 
-// Handle AI queries
 app.get('/ai', async (req, res) => {
     const userPrompt = req.query.prompt?.trim().toLowerCase();
     console.log('Received prompt:', userPrompt);
 
     if (userPrompt) {
         chatHistory.push({ prompt: userPrompt });
+
+        // Check if the prompt is related to music
+        if (/play|sing|song|music|listen/.test(userPrompt)) {
+            const query = userPrompt.replace(/play|sing|song|music|listen/, '').trim();
+            try {
+                const musicApiResponse = await axios.get(`https://hassan-music-api.vercel.app/music?query=${encodeURIComponent(query)}`);
+                const musicData = musicApiResponse.data;
+
+                if (musicData && musicData.length > 0) {
+                    const song = musicData[0]; // Using the first song found
+                    const response = `Playing "${song.title}":\nDownload: ${song.downloadUrl}`;
+                    chatHistory.push({ response });
+                    return res.json({ response });
+                } else {
+                    throw new Error('No songs found');
+                }
+            } catch (error) {
+                console.error('Error fetching music:', error.message || error);
+                const response = `Error fetching music for "${query}": ${error.message}`;
+                chatHistory.push({ response });
+                return res.json({ response });
+            }
+        }
 
         // Check if the prompt mentions "necko"
         if (userPrompt.includes('necko')) {
@@ -110,8 +132,6 @@ app.get('/ai', async (req, res) => {
             }
         }
 
-        // (The rest of your code remains unchanged)
-        
         // Check if the prompt is asking about the creator
         if (userPrompt.includes('who created you') || userPrompt.includes('your creator')) {
             const response = creatorResponses[Math.floor(Math.random() * creatorResponses.length)];
