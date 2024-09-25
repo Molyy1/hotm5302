@@ -237,19 +237,15 @@ app.get('/ai', async (req, res) => {
         } else {
             console.log('Response not found in memory for prompt:', userPrompt);
 
-            // Query an external AI API if no response is found
+             // Query an external AI API if no response is found, but DO NOT LEARN from it
             try {
                 const apiResponse = await axios.get(`https://developer-gpn-llm3.vercel.app/llama3?prompt=${encodeURIComponent(userPrompt)}`);
                 const externalResponse = apiResponse.data.response;
 
                 if (apiResponse.status === 200 && externalResponse) {
-                    aiMemory[userPrompt] = externalResponse;
-                    console.log('Learned from external API:', userPrompt, '->', externalResponse);
+                    console.log('Fetched from external API:', userPrompt, '->', externalResponse);
                     chatHistory.push({ response: externalResponse });
-                    res.json({ response: externalResponse });
-
-                    // Save the updated memory after learning from the external API
-                    saveMemory();
+                    return res.json({ response: externalResponse });
                 } else {
                     throw new Error("Invalid response from external API");
                 }
@@ -257,13 +253,14 @@ app.get('/ai', async (req, res) => {
                 console.error('Error querying external API:', error.response?.data || error.message || error);
                 const response = "404 Error ❗";
                 chatHistory.push({ response });
-                res.json({ response });
-            } 
+                return res.json({ response });
+            }
         }
     } else {
-        res.json({ response: "Please provide a prompt." });
+        return res.json({ response: "Please provide a prompt." });
     }
 });
+
 
 // Handle teaching new prompts
 app.post('/teach', (req, res) => {
