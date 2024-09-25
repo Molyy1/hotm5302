@@ -110,10 +110,8 @@ app.get('/ai', async (req, res) => {
             }
         }
 
-        
-
         // Check if the prompt is music-related
-        if (userPrompt.includes('play music') || userPrompt.includes('sing a song') || userPrompt.includes('play') || userPrompt.includes('music') || userPrompt.includes('sing') || userPrompt.includes('play a song')) {
+        if (userPrompt.includes('play music') || userPrompt.includes('sing a song') || userPrompt.includes('play') || userPrompt.includes('music') || userPrompt.includes('sing')) {
             const query = userPrompt.replace(/(play music|sing a song|play a song|play|music|sing)/, '').trim();
             try {
                 const musicApiUrl = `https://hassan-music-api.vercel.app/music?query=${encodeURIComponent(query)}`;
@@ -136,45 +134,24 @@ app.get('/ai', async (req, res) => {
             }
         }
 
-
-
-        // (The rest of your code remains unchanged)
-
-        // Check if the prompt is asking about the creator
-        if (userPrompt.includes('who created you') || userPrompt.includes('your creator')) {
-            const response = creatorResponses[Math.floor(Math.random() * creatorResponses.length)];
-            chatHistory.push({ response });
-            return res.json({ response });
-        }
-
-        // Check if the prompt is asking about the model
-        if (userPrompt.includes('what model are you') || userPrompt.includes('which model') || userPrompt.includes('your model') || userPrompt.includes('what kind of ai') || userPrompt.includes('kind of ai')) {
-            const response = modelResponses[Math.floor(Math.random() * modelResponses.length)];
-            chatHistory.push({ response });
-            return res.json({ response });
-        }
-
-        // Check if the prompt is related to waifu
-        if (userPrompt.includes('waifu')) {
-            const query = userPrompt.replace('waifu', '').trim();
+        // Check if the prompt mentions "search pexels", "pexels", or is image-related
+        if (userPrompt.includes('search pexels') || userPrompt.includes('pexels') || isImageRelated(userPrompt)) {
             try {
-                const apiUrl = `https://get-anime-waifu-v-0.vercel.app/waifu?search=${encodeURIComponent(query)}`;
-                const waifuApiResponse = await axios.get(apiUrl);
+                const pexelsQuery = userPrompt.replace('search pexels', '').replace('pexels', '').trim();
+                const pexelsApiUrl = `https://h-pexels-v-1.vercel.app/pexels?query=${encodeURIComponent(pexelsQuery)}`;
+                const pexelsApiResponse = await axios.get(pexelsApiUrl);
 
-                if (waifuApiResponse.data && waifuApiResponse.data.images.length > 0) {
-                    const waifuImage = waifuApiResponse.data.images[0]; // Use the first image
-                    const imageUrl = waifuImage.url;
-                    const tags = waifuImage.tags.map(tag => `**${tag.name}**: ${tag.description}`).join('\n');
-
-                    const response = `Here is your waifu for "${query}":\n\n${tags}\n\nImage: ${imageUrl}`;
+                if (pexelsApiResponse.data.images && pexelsApiResponse.data.images.length > 0) {
+                    const imageUrls = pexelsApiResponse.data.images.slice(0, 5); // Limit to 5 images
+                    const response = `Here are some images of ${pexelsQuery}: \n${imageUrls.join('\n')}`;
                     chatHistory.push({ response });
                     return res.json({ response });
                 } else {
-                    throw new Error('No waifu images found');
+                    throw new Error('No images found on Pexels');
                 }
             } catch (error) {
-                console.error('Error fetching waifu:', error.message || error);
-                const response = `Error fetching waifu for "${query}": ${error.message}`;
+                console.error('Error fetching Pexels images:', error.message || error);
+                const response = `Error fetching images for ${pexelsQuery}: ${error.message}`;
                 chatHistory.push({ response });
                 return res.json({ response });
             }
@@ -203,76 +180,94 @@ app.get('/ai', async (req, res) => {
             }
         }
 
-        // Fuzzy matching and memory search
-        const similarPrompt = findSimilarPrompt(userPrompt);
-
-        if (similarPrompt) {
-            const response = aiMemory[similarPrompt];
-            console.log('Found response:', response);
+        // Check if the prompt is asking about the creator
+        if (userPrompt.includes('who created you') || userPrompt.includes('your creator')) {
+            const response = creatorResponses[Math.floor(Math.random() * creatorResponses.length)];
             chatHistory.push({ response });
-            res.json({ response });
-        } else {
-            console.log('Response not found in memory for prompt:', userPrompt);
+            return res.json({ response });
+        }
 
-            // Query an external AI API if no response is found
+        // Check if the prompt is asking about the model
+        if (userPrompt.includes('what model are you') || userPrompt.includes('which model') || userPrompt.includes('your model')) {
+            const response = modelResponses[Math.floor(Math.random() * modelResponses.length)];
+            chatHistory.push({ response });
+            return res.json({ response });
+        }
+
+        // Check if the prompt is related to waifu
+        if (userPrompt.includes('waifu')) {
+            const query = userPrompt.replace('waifu', '').trim();
             try {
-                const apiResponse = await axios.get(`https://developer-gpn-llm3.vercel.app/llama3?prompt=${encodeURIComponent(userPrompt)}`);
-                const externalResponse = apiResponse.data.response;
+                const apiUrl = `https://get-anime-waifu-v-0.vercel.app/waifu?search=${encodeURIComponent(query)}`;
+                const waifuApiResponse = await axios.get(apiUrl);
 
-                if (apiResponse.status === 200 && externalResponse) {
-                    aiMemory[userPrompt] = externalResponse;
-                    console.log('Learned from external API:', userPrompt, '->', externalResponse);
-                    chatHistory.push({ response: externalResponse });
-                    res.json({ response: externalResponse });
-
-                    // Save the updated memory after learning from the external API
-                    saveMemory();
+                if (waifuApiResponse.data && waifuApiResponse.data.images.length > 0) {
+                    const waifuImage = waifuApiResponse.data.images[0]; // Use the first image
+                    const imageUrl = waifuImage.url;
+                    const tags = waifuImage.tags.join(', '); // Display tags if any
+                    const response = `Here is your waifu: ${tags ? `(${tags})` : ''} \n${imageUrl}`;
+                    chatHistory.push({ response });
+                    return res.json({ response });
                 } else {
-                    throw new Error("Invalid response from external API");
+                    throw new Error('No waifu found.');
                 }
             } catch (error) {
-                console.error('Error querying external API:', error.response?.data || error.message || error);
-                const response = "404 Error ❗";
+                console.error('Error fetching waifu:', error.message || error);
+                const response = `Error fetching waifu: ${error.message}`;
                 chatHistory.push({ response });
-                res.json({ response });
-            } 
+                return res.json({ response });
+            }
         }
+
+        // Check if the prompt is already known (fuzzy matching)
+        const similarPrompt = findSimilarPrompt(userPrompt);
+        if (similarPrompt) {
+            const response = aiMemory[similarPrompt];
+            chatHistory.push({ response });
+            return res.json({ response });
+        }
+
+        // Fallback response for unrecognized prompts
+        const fallbackResponse = "Sorry, I couldn't understand that. Could you try asking in a different way?";
+        chatHistory.push({ response: fallbackResponse });
+        return res.json({ response: fallbackResponse });
     } else {
-        res.json({ response: "Please provide a prompt." });
+        const response = "You must provide a prompt!";
+        return res.status(400).json({ error: response });
     }
 });
 
-// Handle teaching new prompts
-app.post('/teach', (req, res) => {
-    let { prompt, response, key } = req.body;
+// Teach the AI new responses
+app.post('/ai/teach', (req, res) => {
+    const { key, prompt, response } = req.body;
 
-    // Key validation
     if (key !== accessKey) {
-        return res.status(403).json({ response: "Access denied: Invalid key." });
+        return res.status(403).json({ error: 'Forbidden. Invalid access key.' });
     }
 
-    if (prompt && response) {
-        const lowerCasePrompt = prompt.trim().toLowerCase();
-        aiMemory[lowerCasePrompt] = response.trim();
-        console.log('Learned:', lowerCasePrompt, '->', response);
-        saveMemory(); // Save the updated AI memory to file
-        res.json({ response: `Learned: "${prompt}" -> "${response}"` });
-    } else {
-        res.status(400).json({ response: "Invalid data format. Provide both 'prompt' and 'response'." });
+    if (!prompt || !response) {
+        return res.status(400).json({ error: 'Both prompt and response are required.' });
     }
+
+    aiMemory[prompt.toLowerCase()] = response;
+    saveMemory(); // Save memory after each new learning
+    return res.json({ message: 'AI has learned the new prompt-response pair!' });
 });
 
-// Handle chat history retrieval
-app.get('/history', (req, res) => {
-    res.json({ response: chatHistory });
+// Clear the AI memory
+app.post('/ai/clear', (req, res) => {
+    const { key } = req.body;
+
+    if (key !== accessKey) {
+        return res.status(403).json({ error: 'Forbidden. Invalid access key.' });
+    }
+
+    aiMemory = {}; // Clear memory
+    saveMemory(); // Save the empty memory to file
+    return res.json({ message: 'AI memory has been cleared!' });
 });
 
-// Inspect the current AI memory
-app.get('/inspectMemory', (req, res) => {
-    res.json({ response: aiMemory });
-});
-
-// Start the server
-app.listen(3000, () => {
-    console.log('AI server is running on port 3000');
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 })
