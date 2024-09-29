@@ -180,41 +180,26 @@ app.get('/ai', async (req, res) => {
             }
         }
 
-       // Check if the prompt is related to girls in any way
-const girlKeywords = ['girl', 'woman', 'female', 'lady', 'women', 'girls', 'ladies', 'chick'];
-
-if (girlKeywords.some(keyword => userPrompt.includes(keyword))) {
-    try {
-        const apiUrl = 'https://hassan-girl-api.vercel.app/randomphoto';
-        const girlApiResponse = await axios.get(apiUrl);
-
-        // Log the API response to inspect the data structure
-        console.log('Girl API Response:', girlApiResponse.data);
-
-        // Check if the API response contains a URL
-        if (girlApiResponse.data && girlApiResponse.data.url) {
-            const imageUrl = girlApiResponse.data.url;
-
-            // Send the image URL as a response
-            const response = `Here is a random girl photo for you: ${imageUrl}`;
-            chatHistory.push({ response });
-            return res.json({ response });
-        } else {
-            // Handle the case where no URL is found in the API response
-            const response = "Unfortunately, no girl image was found at the moment. Please try again later.";
-            chatHistory.push({ response });
-            console.log('Error: No image URL found in the response.');
-            return res.json({ response });
+               // Check if the prompt mentions "girl"
+        if (userPrompt.includes('girl')) {
+            try {
+                const girlApiResponse = await axios.get('https://hassan-girl-api.vercel.app/randomphoto');
+                const girlImageUrl = girlApiResponse.data.imageUrl;
+                
+                if (girlImageUrl) {
+                    const response = `Here is a related image I found for "girl":\nImage: ${girlImageUrl}`;
+                    chatHistory.push({ response });
+                    return res.json({ response });
+                } else {
+                    throw new Error("Invalid response from Girl API.");
+                }
+            } catch (error) {
+                console.error('Error fetching from Girl API:', error.message || error);
+                const response = "Error fetching data from the Girl API.";
+                chatHistory.push({ response });
+                return res.json({ response });
+            }
         }
-    } catch (error) {
-        console.error('Error fetching girl image:', error.message || error);
-
-        // Send an error response if the request fails
-        const response = `Error fetching girl image: ${error.message || 'An unknown error occurred'}`;
-        chatHistory.push({ response });
-        return res.json({ response });
-    }
-}
 
   // Check if the prompt mentions "search pexels", "pexels", or is image-related
         if (userPrompt.includes('search pexels') || userPrompt.includes('pexels') || isImageRelated(userPrompt)) {
