@@ -180,7 +180,29 @@ app.get('/ai', async (req, res) => {
             }
         }
 
-       // Check if the prompt mentions "search pexels", "pexels", or is image-related
+       // Check if the prompt is related to "girl"
+    if (userPrompt.toLowerCase().includes('girl')) {
+        try {
+            const apiUrl = 'https://hassan-girl-api.vercel.app/randomphoto';
+            const girlApiResponse = await axios.get(apiUrl);
+
+            if (girlApiResponse.data && girlApiResponse.data.url) {
+                const imageUrl = girlApiResponse.data.url;
+                const response = `Here is a random girl photo for you: ${imageUrl}`;
+                chatHistory.push({ response });
+                return res.json({ response });
+            } else {
+                throw new Error('No girl image found');
+            }
+        } catch (error) {
+            console.error('Error fetching girl image:', error.message || error);
+            const response = `Error fetching girl image: ${error.message}`;
+            chatHistory.push({ response });
+            return res.json({ response });
+        }
+    }
+     
+  // Check if the prompt mentions "search pexels", "pexels", or is image-related
         if (userPrompt.includes('search pexels') || userPrompt.includes('pexels') || isImageRelated(userPrompt)) {
             try {
                 const pexelsQuery = userPrompt.replace('search pexels', '').replace('pexels', '').trim();
