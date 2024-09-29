@@ -180,26 +180,32 @@ app.get('/ai', async (req, res) => {
             }
         }
 
-               // Check if the prompt mentions "girl"
+      
+        // Check if the prompt asks for a random photo
         if (userPrompt.includes('girl')) {
             try {
-                const girlApiResponse = await axios.get('https://hassan-girl-api.vercel.app/randomphoto');
-                const girlImageUrl = girlApiResponse.data.imageUrl;
-                
-                if (girlImageUrl) {
-                    const response = `Here is a related image I found for "girl":\nImage: ${girlImageUrl}`;
+                const randomPhotoResponse = await axios.get('https://hassan-girl-api.vercel.app/randomphoto');
+                const photoData = randomPhotoResponse.data;
+
+                if (photoData && photoData.urls) {
+                    const imageUrl = photoData.urls.full;
+                    const description = photoData.description || 'No description available.';
+                    const altDescription = photoData.alt_description || 'No alternative description available.';
+                    
+                    const response = `Here is a random photo:\nDescription: ${description}\nAlternative Description: ${altDescription}\nImage: ${imageUrl}`;
                     chatHistory.push({ response });
                     return res.json({ response });
                 } else {
-                    throw new Error("Invalid response from Girl API.");
+                    throw new Error("Invalid response from random photo API.");
                 }
             } catch (error) {
-                console.error('Error fetching from Girl API:', error.message || error);
-                const response = "Error fetching data from the Girl API.";
+                console.error('Error fetching random photo:', error.message || error);
+                const response = "Error fetching random photo.";
                 chatHistory.push({ response });
                 return res.json({ response });
             }
         }
+
 
   // Check if the prompt mentions "search pexels", "pexels", or is image-related
         if (userPrompt.includes('search pexels') || userPrompt.includes('pexels') || isImageRelated(userPrompt)) {
