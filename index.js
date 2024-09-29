@@ -180,7 +180,7 @@ app.get('/ai', async (req, res) => {
             }
         }
 
-               // Check if the prompt is related to "girl"
+             // Check if the prompt is related to "girl"
         if (userPrompt.includes('girl')) {
             try {
                 const apiUrl = 'https://hassan-girl-api.vercel.app/randomphoto';
@@ -207,7 +207,8 @@ app.get('/ai', async (req, res) => {
                 return res.json({ response });
             }
         }
-     
+
+
   // Check if the prompt mentions "search pexels", "pexels", or is image-related
         if (userPrompt.includes('search pexels') || userPrompt.includes('pexels') || isImageRelated(userPrompt)) {
             try {
@@ -323,4 +324,4 @@ app.get('/inspectMemory', (req, res) => {
 // Start the server
 app.listen(3000, () => {
     console.log('AI server is running on port 3000');
-})
+}) 
