@@ -180,8 +180,10 @@ app.get('/ai', async (req, res) => {
             }
         }
 
-             // Check if the prompt is related to "girl"
-        if (userPrompt.includes('girl')) {
+           // Check if the prompt is related to girls in any way
+        const girlKeywords = ['girl', 'woman', 'female', 'lady', 'women', 'girls', 'ladies', 'chick'];
+
+        if (girlKeywords.some(keyword => userPrompt.includes(keyword))) {
             try {
                 const apiUrl = 'https://hassan-girl-api.vercel.app/randomphoto';
                 const girlApiResponse = await axios.get(apiUrl);
@@ -198,17 +200,19 @@ app.get('/ai', async (req, res) => {
                     // Handle the case where no URL is found in the API response
                     const response = "Unfortunately, no girl image was found at the moment. Please try again later.";
                     chatHistory.push({ response });
+                    console.log('Error: No image URL found in the response.');
                     return res.json({ response });
                 }
             } catch (error) {
                 console.error('Error fetching girl image:', error.message || error);
-                const response = `Error fetching girl image: ${error.message}`;
+
+                // More detailed error response
+                const response = `Error fetching girl image: ${error.message || 'An unknown error occurred'}`;
                 chatHistory.push({ response });
                 return res.json({ response });
             }
-        }
-
-
+        }  
+     
   // Check if the prompt mentions "search pexels", "pexels", or is image-related
         if (userPrompt.includes('search pexels') || userPrompt.includes('pexels') || isImageRelated(userPrompt)) {
             try {
@@ -324,4 +328,4 @@ app.get('/inspectMemory', (req, res) => {
 // Start the server
 app.listen(3000, () => {
     console.log('AI server is running on port 3000');
-}) 
+})
