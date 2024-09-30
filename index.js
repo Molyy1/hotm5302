@@ -206,6 +206,33 @@ app.get('/ai', async (req, res) => {
             }
         }
 
+ // Check if the prompt mentions "search img of" or is image-related
+if (userPrompt.includes('search img of') || isImageRelated(userPrompt)) {
+    try {
+        // Extract the query and number of images from the prompt
+        const [googleQuery, numImages] = userPrompt.replace('google send img', '').trim().split('-').map(item => item.trim());
+        const imageLimit = numImages ? parseInt(numImages) : 8; // Default to 8 if no number is provided
+
+        // Construct the Google API URL
+        const googleApiUrl = `https://g-v-google-h-api.vercel.app/google?query=${encodeURIComponent(googleQuery)}`;
+
+        const googleApiResponse = await axios.get(googleApiUrl);
+
+        if (googleApiResponse.data.images && googleApiResponse.data.images.length > 0) {
+            const imageUrls = googleApiResponse.data.images.slice(0, imageLimit); // Limit by the requested number of images
+            const response = `Here are ${imageLimit} images of ${googleQuery}: \n${imageUrls.join('\n')}`;
+            chatHistory.push({ response });
+            return res.json({ response });
+        } else {
+            throw new Error('No images found on Google');
+        }
+    } catch (error) {
+        console.error('Error fetching Google images:', error.message || error);
+        const response = `Error fetching images for ${googleQuery}: ${error.message}`;
+        chatHistory.push({ response });
+        return res.json({ response });
+    }
+}
 
   // Check if the prompt mentions "search pexels", "pexels", or is image-related
         if (userPrompt.includes('search pexels') || userPrompt.includes('pexels') || isImageRelated(userPrompt)) {
