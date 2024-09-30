@@ -206,7 +206,30 @@ app.get('/ai', async (req, res) => {
             }
         }
 
- // Check if the prompt mentions "search img of" or is image-related
+ // Check if the prompt mentions "generate"
+if (userPrompt.includes('generate')) {
+    try {
+        const generatePrompt = userPrompt.replace('generate', '').trim(); // Extract the relevant prompt
+        const generateImageUrl = `http://3.27.248.76:3000/generate-image-flux?prompt=${encodeURIComponent(generatePrompt)}`;
+        
+        const generateImageResponse = await axios.get(generateImageUrl);
+
+        if (generateImageResponse.data.url) {
+            const response = `Generated image: ${generateImageResponse.data.url}`;
+            chatHistory.push({ response });
+            return res.json({ response });
+        } else {
+            throw new Error('Image generation failed');
+        }
+    } catch (error) {
+        console.error('Error generating image:', error.message || error);
+        const response = `Error generating image: ${error.message}`;
+        chatHistory.push({ response });
+        return res.json({ response });
+    }
+}
+
+// Check if the prompt mentions "search img of" or is image-related
 if (userPrompt.includes('search img of') || isImageRelated(userPrompt)) {
     try {
         // Extract the query and number of images from the prompt
