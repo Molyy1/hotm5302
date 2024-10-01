@@ -257,34 +257,11 @@ if (userPrompt.includes('search img of') || isImageRelated(userPrompt)) {
     }
 }
 
-  // Check if the prompt mentions "search pexels", "pexels", or is image-related
-        if (userPrompt.includes('search pexels') || userPrompt.includes('pexels') || isImageRelated(userPrompt)) {
-            try {
-                const pexelsQuery = userPrompt.replace('search pexels', '').replace('pexels', '').trim();
-                const pexelsApiUrl = `https://h-pexels-v-1.vercel.app/pexels?query=${encodeURIComponent(pexelsQuery)}`;
-                const pexelsApiResponse = await axios.get(pexelsApiUrl);
-
-                if (pexelsApiResponse.data.images && pexelsApiResponse.data.images.length > 0) {
-                    const imageUrls = pexelsApiResponse.data.images.slice(0, 5); // Limit to 5 images
-                    const response = `Here are some images of ${pexelsQuery}: \n${imageUrls.join('\n')}`;
-                    chatHistory.push({ response });
-                    return res.json({ response });
-                } else {
-                    throw new Error('No images found on Pexels');
-                }
-            } catch (error) {
-                console.error('Error fetching Pexels images:', error.message || error);
-                const response = `Error fetching images for ${pexelsQuery}: ${error.message}`;
-                chatHistory.push({ response });
-                return res.json({ response });
-            }
-        }
-         
       // Check if the prompt is related to images (general)
         if (isImageRelated(userPrompt)) {
             const query = userPrompt;
             try {
-                const apiUrl = `https://hassan-d-pintrest-project-api.vercel.app/pinterest?query=${encodeURIComponent(query)}`;
+                const apiUrl = `https://hassan-pinter-api.vercel.app/pinterest?query=${encodeURIComponent(query)}`;
                 const resApi = await axios.get(apiUrl);
                 const imageUrls = resApi.data.data.slice(0, 10); // Limit to 10 images
 
