@@ -180,31 +180,29 @@ app.get('/ai', async (req, res) => {
             }
         }
 
-      
-        // Check if the prompt asks for a random photo
-        if (userPrompt.includes('girl')) {
-            try {
-                const randomPhotoResponse = await axios.get('https://hassan-girl-api.vercel.app/randomphoto');
-                const photoData = randomPhotoResponse.data;
 
-                if (photoData && photoData.urls) {
-                    const imageUrl = photoData.urls.full;
-                    const description = photoData.description || 'No description available.';
-                    const altDescription = photoData.alt_description || 'No alternative description available.';
-                    
-                    const response = `Here is a random photo:\nDescription: ${description}\nAlternative Description: ${altDescription}\nImage: ${imageUrl}`;
-                    chatHistory.push({ response });
-                    return res.json({ response });
-                } else {
-                    throw new Error("Invalid response from random photo API.");
-                }
-            } catch (error) {
-                console.error('Error fetching random photo:', error.message || error);
-                const response = "Error fetching random photo.";
-                chatHistory.push({ response });
-                return res.json({ response });
-            }
+       // Check if the prompt mentions "-Xi"
+if (userPrompt.includes('-Xi')) {
+    try {
+        const xiPrompt = userPrompt.replace('-Xi', '').trim(); // Extract the relevant prompt
+        const xiApiUrl = `https://day-xi-api.vercel.app/xi?prompt=${encodeURIComponent(xiPrompt)}`;
+        
+        const xiApiResponse = await axios.get(xiApiUrl);
+
+        if (xiApiResponse.data.xiResponse && xiApiResponse.data.xiResponse.length > 0) {
+            const response = `Xi image: ${xiApiResponse.data.xiResponse[0]}`;
+            chatHistory.push({ response });
+            return res.json({ response });
+        } else {
+            throw new Error('Xi image generation failed');
         }
+    } catch (error) {
+        console.error('Error generating Xi image:', error.message || error);
+        const response = `Error generating Xi image: ${error.message}`;
+        chatHistory.push({ response });
+        return res.json({ response });
+    }
+}
 
  // Check if the prompt mentions "generate"
 if (userPrompt.includes('generate')) {
