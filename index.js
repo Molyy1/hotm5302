@@ -279,6 +279,32 @@ if (userPrompt.includes('search img of') || isImageRelated(userPrompt)) {
     }
 }
 
+        // Check if the prompt mentions "flux"
+if (userPrompt.includes('flux')) {
+    try {
+        const fluxApiUrl = `https://www.samirxpikachu.run.place/mageDef?prompt=${encodeURIComponent(userPrompt)}`;
+        
+        const imageStream = await global.utils.getStreamFromURL(fluxApiUrl);
+        
+        if (!imageStream) {
+            throw new Error('Failed to retrieve image from Samir API');
+        }
+
+        const response = {
+            body: 'Here is your image:',
+            attachment: imageStream
+        };
+        
+        chatHistory.push({ response });
+        return res.json({ response });
+    } catch (error) {
+        console.error('Error fetching image from Samir API:', error.message || error);
+        const response = `Error fetching image: ${error.message}`;
+        chatHistory.push({ response });
+        return res.json({ response });
+    }
+}
+
 
       // Check if the prompt is related to images (general)
         if (isImageRelated(userPrompt)) {
