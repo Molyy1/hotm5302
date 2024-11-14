@@ -254,6 +254,31 @@ if (userPrompt.includes('search img of') || isImageRelated(userPrompt)) {
         return res.json({ response });
     }
 }
+        
+        // Check if the prompt mentions "anime-quote"
+   if (userPrompt.includes('anime-quote')) {
+    try {
+        const animeQuoteUrl = 'https://h-anime-quote-api.vercel.app/anime-quote';
+        
+        const animeQuoteResponse = await axios.get(animeQuoteUrl);
+        
+        if (animeQuoteResponse.data.status === 'success') {
+            const quoteData = animeQuoteResponse.data.data;
+            const response = `📜 Anime Quote:\n\n"${quoteData.content}"\n\n- ${quoteData.character.name} (${quoteData.anime.name})`;
+            
+            chatHistory.push({ response });
+            return res.json({ response });
+        } else {
+            throw new Error('Anime quote generation failed');
+        }
+    } catch (error) {
+        console.error('Error fetching anime quote:', error.message || error);
+        const response = `Error fetching anime quote: ${error.message}`;
+        chatHistory.push({ response });
+        return res.json({ response });
+    }
+}
+
 
       // Check if the prompt is related to images (general)
         if (isImageRelated(userPrompt)) {
