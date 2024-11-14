@@ -282,7 +282,7 @@ if (userPrompt.includes('search img of') || isImageRelated(userPrompt)) {
         // Check if the prompt mentions "flux"
 if (userPrompt.includes('flux')) {
     try {
-        const fluxApiUrl = `https://www.samirxpikachu.run.place/mageDef?prompt=${encodeURIComponent(userPrompt)}`;
+        const fluxApiUrl = `https://midjourney-m529.onrender.com/generate?prompt=${encodeURIComponent(userPrompt)}`;
         
         const imageStream = await global.utils.getStreamFromURL(fluxApiUrl);
         
