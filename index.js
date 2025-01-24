@@ -178,7 +178,31 @@ app.get('/ai', async (req, res) => {
                 chatHistory.push({ response });
                 return res.json({ response });
             }
+        }        
+
+        // Check if the prompt mentions "poli"
+if (userPrompt.includes('poli')) {
+    try {
+        const generatePrompt = userPrompt.replace('poli', '').trim(); // Extract the relevant prompt
+        const generateImageUrl = `https://hassan-mage-api.onrender.com/poli?prompt=${encodeURIComponent(generatePrompt)}`;
+        
+        const generateImageResponse = await axios.get(generateImageUrl);
+
+        if (generateImageResponse.data.imageUrl) {
+            const response = `Generated image: ${generateImageResponse.data.imageUrl}`;
+            chatHistory.push({ response });
+            return res.json({ response });
+        } else {
+            throw new Error('Image generation failed');
         }
+    } catch (error) {
+        console.error('Error generating image:', error.message || error);
+        const response = `Error generating image: ${error.message}`;
+        chatHistory.push({ response });
+        return res.json({ response });
+    }
+}
+
 
 
        // Check if the prompt mentions "-Xi"
