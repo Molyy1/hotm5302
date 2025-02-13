@@ -282,6 +282,29 @@ if (userPrompt.includes('search img of') || isImageRelated(userPrompt)) {
         return res.json({ response });
     }
 }
+
+    // Check if the prompt mentions "dlf"
+if (userPrompt.includes('dlf')) {
+    try {
+        const dallePrompt = userPrompt.replace('dlf', '').trim(); // Extract the relevant prompt
+        const dalleImageUrl = `https://hassan-dalle-api.onrender.com/dalle?prompt=${encodeURIComponent(dallePrompt)}`;
+
+        const dalleImageResponse = await axios.get(dalleImageUrl);
+
+        if (dalleImageResponse.data.generated_image) {
+            const response = `Generated image: ${dalleImageResponse.data.generated_image}`;
+            chatHistory.push({ response });
+            return res.json({ response });
+        } else {
+            throw new Error('DALL·E image generation failed');
+        }
+    } catch (error) {
+        console.error('Error generating DALL·E image:', error.message || error);
+        const response = `Error generating DALL·E image: ${error.message}`;
+        chatHistory.push({ response });
+        return res.json({ response });
+    }
+}
         
         // Check if the prompt mentions "anime-quote"
    if (userPrompt.includes('anime-quote')) {
