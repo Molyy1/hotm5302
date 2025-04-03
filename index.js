@@ -305,6 +305,53 @@ if (userPrompt.includes('dlf')) {
         return res.json({ response });
     }
 }
+
+        // Check if the prompt mentions "/spacel"
+if (userPrompt.includes('/spacel')) {
+    try {
+        // Fetch space data from the API
+        var spaceApiUrl = 'https://hassan-space-aips.onrender.com/randomspace';
+        var spaceResponse = await axios.get(spaceApiUrl);
+        var spaceData = spaceResponse.data;
+
+        if (spaceData) {
+            var title = spaceData.title;
+            var date = spaceData.date;
+            var explanation = spaceData.explanation;
+            var imageUrl = spaceData.hdurl || spaceData.url;
+
+            var responseText = `🪐 ${title}\n📅 Date: ${date}\n\n📝 Explanation:\n${explanation}`;
+
+            if (imageUrl) {
+                var imageRes = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+                var fs = require('fs');
+                var path = require('path');
+                var imageBuffer = Buffer.from(imageRes.data, 'binary');
+                var imagePath = path.join(__dirname, 'space_image.jpg');
+                fs.writeFileSync(imagePath, imageBuffer);
+
+                chatHistory.push({ response: responseText });
+
+                return res.json({
+                    response: responseText,
+                    imagePath: imagePath
+                });
+            } else {
+                chatHistory.push({ response: responseText });
+                return res.json({ response: responseText });
+            }
+        } else {
+            var response = "⚠️ No space information found.";
+            chatHistory.push({ response });
+            return res.json({ response });
+        }
+    } catch (error) {
+        console.error("Error fetching space data:", error.message || error);
+        var response = "❌ Error fetching space information.";
+        chatHistory.push({ response });
+        return res.json({ response });
+    }
+}
         
         // Check if the prompt mentions "anime-quote"
    if (userPrompt.includes('anime-quote')) {
