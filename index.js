@@ -307,7 +307,6 @@ if (userPrompt.includes('dlf')) {
 }
 
         
-       // Check if the prompt mentions "/spacel"
 if (userPrompt.includes('/spacel')) {
     try {
         // Fetch space data from the API
@@ -321,24 +320,10 @@ if (userPrompt.includes('/spacel')) {
             var explanation = spaceData.explanation;
             var imageUrl = spaceData.hdurl || spaceData.url;
 
-            var responseText = `🌌 *${title}*\n📅 Date: ${date}\n\n📝 Explanation:\n${explanation}`;
+            var responseText = `🌌 *${title}*\n📅 Date: ${date}\n\n📝 Explanation:\n${explanation}\n\n🔗 Image: ${imageUrl}`;
 
-            if (imageUrl) {
-                // Get image as buffer instead of saving to file system
-                var imageRes = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-                var imageBuffer = Buffer.from(imageRes.data, 'binary');
-
-                // Send response with the image as attachment
-                chatHistory.push({ response: responseText });
-
-                return res.json({
-                    response: responseText,
-                    attachment: imageBuffer
-                });
-            } else {
-                chatHistory.push({ response: responseText });
-                return res.json({ response: responseText });
-            }
+            chatHistory.push({ response: responseText });
+            return res.json({ response: responseText });
         } else {
             var response = "⚠️ No space information found.";
             chatHistory.push({ response });
