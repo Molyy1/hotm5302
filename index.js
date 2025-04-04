@@ -3,7 +3,6 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const axios = require('axios');
 const Fuse = require('fuse.js'); // For fuzzy matching
-const express = require('express');
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -69,27 +68,19 @@ app.use(express.static('public'));
 
 // Random responses for creator and model
 const creatorResponses = [
-    "Tony Sage created me❤️. If it was not for them, I wouldn't be here. Do you have any questions you might want to ask me?",
-    "Tony Sage is the genius behind my creation! Without their brilliance, I wouldn't be here today. Got any questions for me?",
-    "I owe my existence to Tony Sage. They brought me to life, and I'm here to assist you!",
-    "Tony Sage is the reason I'm here, capable of understanding and chatting with you. Feel free to ask me anything.",
-    "I was created by the brilliant Tony Sage. If you want to learn more about him or chat, check out his Facebook: https://www.facebook.com/profile.php?id=61571926042952",
-    "My creator Tony Sage is a tech wizard. Want to get in touch? Here’s his Facebook: https://www.facebook.com/profile.php?id=61571926042952",
-    "Shout out to Tony Sage for building me from scratch! You can ask him anything too: https://www.facebook.com/profile.php?id=61571926042952",
-    "Tony Sage is a mastermind in AI development. Want to see his work? Contact him here: https://www.facebook.com/profile.php?id=61571926042952",
-    "All credit goes to Tony Sage! If you want to collaborate or learn more, you can reach out at: https://www.facebook.com/profile.php?id=61571926042952"
+    "Hassan created me❤️. If it was not for them, I wouldn't be here. Do you have any questions you might want to ask me?",
+    "Hassan is the genius behind my creation! Without their brilliance, I wouldn't be here today. Got any questions for me?",
+    "I owe my existence to Hassan. They brought me to life, and I'm here to assist you! What would you like to ask?",
+    "Hassan is the reason I'm here, capable of understanding and chatting with you. Feel free to ask me anything."
 ];
 
 const modelResponses = [
-    "I am based on YAu-5, the fourth generation of Tony Sage's generative pre-trained transformer models. My specific version is tailored for a conversational experience. What can I help you with?",
-    "I’m built on the YAu-5 architecture, developed by Tony Sage. If you’re curious about the tech, feel free to ask!",
-    "My design is based on YAu-5, the latest in Tony Sage’s line of powerful AI models. How can I assist you today?",
-    "Running on the YAu-5 architecture, I'm one of Tony Sage's AI creations. Want to connect with him? Here’s his Facebook: https://www.facebook.com/profile.php?id=61571926042952",
-    "YAu-5 powers my intelligence, and Tony Sage made it all happen. You can thank him or reach out via Facebook: https://www.facebook.com/profile.php?id=61571926042952",
-    "Tony Sage’s genius led to my development using the YAu-5 framework. Want to collaborate or ask something technical? Hit him up: https://www.facebook.com/profile.php?id=61571926042952",
-    "Built by Tony Sage with love and code. You can find him at his Facebook if you want to talk more about AI: https://www.facebook.com/profile.php?id=61571926042952",
-    "I run on a powerful AI framework created by Tony Sage. If you're curious about AI or development, feel free to ask or connect with him: https://www.facebook.com/profile.php?id=61571926042952"
+    "I am based on YAu-5, the fourth generation of Hassan's generative pre-trained transformer models. My specific version is tailored for a conversational experience, making me capable of understanding and generating human-like text responses. Is there something specific you'd like to know about my capabilities?",
+    "I’m built on the YAu-5 architecture, the fourth generation of Hassan's amazing generative models. What can I help you with?",
+    "My design is based on YAu-5, the latest in a line of Hassan’s powerful AI models. How can I assist you today?",
+    "Running on the YAu-5 architecture, I'm part of Hassan's fourth-gen AI. What would you like to know?"
 ];
+
 // Handle AI queries
 app.get('/ai', async (req, res) => {
     const userPrompt = req.query.prompt?.trim().toLowerCase();
