@@ -324,18 +324,16 @@ if (userPrompt.includes('/spacel')) {
             var responseText = `🌌 *${title}*\n📅 Date: ${date}\n\n📝 Explanation:\n${explanation}`;
 
             if (imageUrl) {
+                // Get image as buffer instead of saving to file system
                 var imageRes = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-                var fs = require('fs');
-                var path = require('path');
                 var imageBuffer = Buffer.from(imageRes.data, 'binary');
-                var imagePath = path.join(__dirname, 'space_image.jpg');
-                fs.writeFileSync(imagePath, imageBuffer);
 
+                // Send response with the image as attachment
                 chatHistory.push({ response: responseText });
 
                 return res.json({
                     response: responseText,
-                    imagePath: imagePath
+                    attachment: imageBuffer
                 });
             } else {
                 chatHistory.push({ response: responseText });
@@ -352,32 +350,8 @@ if (userPrompt.includes('/spacel')) {
         chatHistory.push({ response });
         return res.json({ response });
     }
-} 
-        // Check if the prompt mentions "anime-quote"
-   if (userPrompt.includes('anime-quote')) {
-    try {
-        const animeQuoteUrl = 'https://h-anime-quote-api.vercel.app/anime-quote';
-        
-        const animeQuoteResponse = await axios.get(animeQuoteUrl);
-        
-        if (animeQuoteResponse.data.status === 'success') {
-            const quoteData = animeQuoteResponse.data.data;
-            const response = `📜 Anime Quote:\n\n"${quoteData.content}"\n\n- ${quoteData.character.name} (${quoteData.anime.name})`;
-            
-            chatHistory.push({ response });
-            return res.json({ response });
-        } else {
-            throw new Error('Anime quote generation failed');
-        }
-    } catch (error) {
-        console.error('Error fetching anime quote:', error.message || error);
-        const response = `Error fetching anime quote: ${error.message}`;
-        chatHistory.push({ response });
-        return res.json({ response });
-    }
 }
-
-
+        
 if (userPrompt.includes('flux')) {
     try {
         const fluxApiUrl = `https://flux-0-2.onrender.com/flux?prompt=${encodeURIComponent(userPrompt)}`;
