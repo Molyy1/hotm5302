@@ -306,7 +306,8 @@ if (userPrompt.includes('dlf')) {
     }
 }
 
-        // Check if the prompt mentions "/spacel"
+        
+       // Check if the prompt mentions "/spacel"
 if (userPrompt.includes('/spacel')) {
     try {
         // Fetch space data from the API
@@ -320,7 +321,7 @@ if (userPrompt.includes('/spacel')) {
             var explanation = spaceData.explanation;
             var imageUrl = spaceData.hdurl || spaceData.url;
 
-            var responseText = `🪐 ${title}\n📅 Date: ${date}\n\n📝 Explanation:\n${explanation}`;
+            var responseText = `🌌 *${title}*\n📅 Date: ${date}\n\n📝 Explanation:\n${explanation}`;
 
             if (imageUrl) {
                 var imageRes = await axios.get(imageUrl, { responseType: 'arraybuffer' });
@@ -347,12 +348,11 @@ if (userPrompt.includes('/spacel')) {
         }
     } catch (error) {
         console.error("Error fetching space data:", error.message || error);
-        var response = "❌ Error fetching space information.";
+        var response = `❌ Error fetching space information: ${error.message}`;
         chatHistory.push({ response });
         return res.json({ response });
     }
-}
-        
+} 
         // Check if the prompt mentions "anime-quote"
    if (userPrompt.includes('anime-quote')) {
     try {
